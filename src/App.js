@@ -102,7 +102,7 @@ class App extends React.Component {
       let displayName = profile.displayName;
       this.setState({
         name: displayName,
-        resourceLoaded: true
+        progress: 100
       });
     } catch (error) {
       console.log(error);
