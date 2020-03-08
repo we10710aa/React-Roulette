@@ -1,6 +1,7 @@
 import React from "react";
 import BezierEasing from "bezier-easing";
 import styled from 'styled-components'
+import { Modal, Button } from 'react-bootstrap'
 import 'animate.css'
 
 const Wrapper = styled.div`
@@ -27,7 +28,8 @@ class Circle extends React.Component {
     this.prizeImages = this.props.prizeImages;
     this.state = {
       rotationDegree: 0,
-      leaving: false
+      leaving: false,
+      showDialog: false
     };
   }
 
@@ -114,7 +116,7 @@ class Circle extends React.Component {
       frames = frames + 1;
       if (frames > 600) {
         this.rotationDegree = (angle + rotation) % 360;
-        console.log(this.rotationDegree);
+        this.setState({showDialog:true})
         return;
       }
       let roDegree = easeFunction(frames / 600) * rotation;
@@ -134,15 +136,34 @@ class Circle extends React.Component {
     this.defaults = this.props.defaults;
     this.prizeImages = this.props.prizeImages;
     return (
-      <Wrapper className={`${wrapperClass}`}>
-        <canvas
-          className="turntable-canvas"
-          ref={this.canvasRef}
-          width={600}
-          height={600}
-        />
-        <StartButton alt="start" src="start.png" onClick={() => this.handleClick()}></StartButton>
-      </Wrapper>
+      <div>
+        <h1>祝您中獎</h1>
+        <Modal show={this.state.showDialog} onHide={()=>this.setState({showDialog:false})}>
+          <Modal.Header closeButton>
+            <Modal.Title><font color="black">Congrulation</font></Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p style={{ color: "black", textAlign: "left" }}>您獲得了: 5000元東京卡</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={()=>this.setState({showDialog: false})}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+        <Wrapper className={`${wrapperClass}`}>
+          <canvas
+            className="turntable-canvas"
+            ref={this.canvasRef}
+            width={600}
+            height={600}
+          />
+          <StartButton
+            className="nes-pointer"
+            alt="start"
+            src="start.png"
+            onClick={() => this.handleClick()}>
+          </StartButton>
+        </Wrapper>
+      </div>
     );
   }
 }
