@@ -116,7 +116,7 @@ class Circle extends React.Component {
       frames = frames + 1;
       if (frames > 600) {
         this.rotationDegree = (angle + rotation) % 360;
-        this.setState({showDialog:true})
+        this.setState({ showDialog: true })
         return;
       }
       let roDegree = easeFunction(frames / 600) * rotation;
@@ -126,6 +126,10 @@ class Circle extends React.Component {
       window.requestAnimationFrame(update);
     };
     window.requestAnimationFrame(update);
+  }
+
+  getPrize() {
+    
   }
 
   render() {
@@ -138,7 +142,7 @@ class Circle extends React.Component {
     return (
       <div>
         <h1>祝您中獎</h1>
-        <Modal show={this.state.showDialog} onHide={()=>this.setState({showDialog:false})}>
+        <Modal show={this.state.showDialog} onHide={() => this.setState({ showDialog: false })}>
           <Modal.Header closeButton>
             <Modal.Title><font color="black">Congrulation</font></Modal.Title>
           </Modal.Header>
@@ -146,7 +150,7 @@ class Circle extends React.Component {
             <p style={{ color: "black", textAlign: "left" }}>您獲得了: 5000元東京卡</p>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={()=>this.setState({showDialog: false})}>Close</Button>
+            <Button onClick={() => this.setState({ showDialog: false })}>Close</Button>
           </Modal.Footer>
         </Modal>
         <Wrapper className={`${wrapperClass}`}>

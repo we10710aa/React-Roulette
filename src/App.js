@@ -4,81 +4,8 @@ import "./App.css";
 import Circle from "./Circle";
 import { ProgressBar } from 'react-bootstrap'
 import 'animate.css'
+import { Redirect } from 'react-router-dom'
 const liff = window.liff;
-
-const defaults = {
-  list: [
-    {
-      id: 100,
-      name: "5000元京东卡",
-      image: "1.png",
-      rank: 1,
-      percent: 3
-    },
-    {
-      id: 101,
-      name: "1000元京东卡",
-      image: "2.png",
-      rank: 2,
-      percent: 5
-    },
-    {
-      id: 102,
-      name: "100个比特币",
-      image: "3.png",
-      rank: 3,
-      percent: 2
-    },
-    {
-      id: 103,
-      name: "50元话费",
-      image: "4.png",
-      rank: 4,
-      percent: 49
-    },
-    {
-      id: 104,
-      name: "100元话费",
-      image: "5.png",
-      rank: 5,
-      percent: 30
-    },
-    {
-      id: 105,
-      name: "500个比特币",
-      image: "6.png",
-      rank: 6,
-      percent: 1
-    },
-    {
-      id: 106,
-      name: "500元京东卡",
-      image: "7.png",
-      rank: 7,
-      percent: 10
-    }
-  ],
-  outerCircle: {
-    color: "#df1e15"
-  },
-  innerCircle: {
-    color: "#f4ad26"
-  },
-  dots: ["#fbf0a9", "#fbb936"],
-  disk: [
-    "#ffb933",
-    "#ffe8b5",
-    "#ffb933",
-    "#ffd57c",
-    "#ffb933",
-    "#ffe8b5",
-    "#ffd57c"
-  ],
-  title: {
-    color: "#5c1e08",
-    font: "19px Arial"
-  }
-};
 
 class App extends React.Component {
   constructor(props) {
@@ -88,7 +15,7 @@ class App extends React.Component {
       name: props.name,
       resourceLoaded: false,
       progress: 20,
-      prizeList: defaults,
+      prizeList: {},
       prizeImages: [],
       startPressed: false
     };
@@ -99,21 +26,33 @@ class App extends React.Component {
       console.log(liff);
       await this.initializeLiff(this.myLiffId);
       let profile = await liff.getProfile();
+      await liff.sendMessages([{
+        type: 'text',
+        text: 'Hello!'
+      }])
       let displayName = profile.displayName;
       this.setState({
         name: displayName,
-        progress: 100
+        progress: 30
       });
     } catch (error) {
       console.log(error);
       this.setState({
-        progress: 45
+        needLogin: true,
       })
     }
+
+    let prizeList = await this.loadPrizeList();
+    this.setState({
+      progress: 45,
+      prizeList: prizeList
+    })
+
     let loadedImage = [];
     for (const item of this.state.prizeList.list) {
       let image = await this.loadImage(item.image);
       loadedImage.push(image);
+      this.setState((oldState) => { return { progress: oldState.progress + 5 } })
     }
     this.setState({
       progress: 100,
@@ -123,6 +62,12 @@ class App extends React.Component {
 
   initializeLiff(myLiffId) {
     return liff.init({ liffId: myLiffId });
+  }
+
+  async loadPrizeList() {
+    const response = await fetch('https://www.raymondplayground.xyz/roulette/prizes');
+    const result = await response.json();
+    return result;
   }
 
   loadImage(imageSrc) {
@@ -137,6 +82,13 @@ class App extends React.Component {
   }
 
   render() {
+    if (this.state.needLogin) {
+      const clientID = '1653860398';
+      const redirectUri = 'https://www.raymondplayground.xyz/rouletteApp'
+      const redirect = encodeURI(`https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${clientID}&redirect_uri=${redirectUri}&scope=profile%20openid%20email&state=1234`);
+      console.log(redirect)
+      return <Redirect to={'/liff'}></Redirect>
+    }
     let loading = this.state.progress <= 100 ? true : false;
     let finishLoading = this.state.progress === 100 ? true : false
     let introducing = this.state.resourceLoaded;
@@ -153,11 +105,11 @@ class App extends React.Component {
             style={{ width: `60%` }}
             animated
             now={this.state.progress}
-            label={`loading user info ${this.state.progress}%`}></ProgressBar>}
+            label={`努力加載中 ${this.state.progress}%`}></ProgressBar>}
           {introducing && !started && <div
             className={`nes-container is-dark with-title`}>
             <p className="title">玉山轉盤</p>
-            <p>{`Hello, ${this.state.name}`}<br/>{`這是一個小遊戲的介紹`}<br/>{`我是介紹我是介紹我是介紹`}</p>
+            <p>{`Hello, ${this.state.name}`}<br />{`這是一個小遊戲的介紹`}<br />{`我是介紹我是介紹我是介紹`}</p>
           </div>}
           {introducing && !started && <button
             type="button"
